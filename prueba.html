@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reproductor adaptable</title>
+
+  <!-- Plyr CSS -->
+  <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #000;
+      overflow: hidden;
+    }
+
+    .video-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      min-height: 100dvh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .plyr { width: 100%; height: 100%; }
+
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    :root {
+      --plyr-color-main: #c8ff00;
+      --plyr-control-icon-size: 20px;
+      --plyr-video-control-color: #fff;
+      --plyr-video-control-background: rgba(0, 0, 0, 0.5);
+    }
+
+    .plyr__controls {
+      background: rgba(0, 0, 0, 0.7) !important;
+      border-radius: 12px;
+      padding: 8px;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .plyr__controls button {
+      color: #0084ff !important;
+      transition: transform 0.2s ease;
+    }
+    .plyr__controls button:hover {
+      transform: scale(1.2);
+      color: #3369ff !important;
+    }
+
+    .plyr__controls button.custom-btn {
+      color: #fff !important;
+      background: rgba(0, 132, 255, 0.8);
+      border: none;
+      border-radius: 6px;
+      padding: 4px 10px;
+      margin: 0 5px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .plyr__controls button.custom-btn:hover {
+      background: #0084ff;
+      transform: scale(1.1);
+    }
+
+    .control-logo {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+    }
+    .control-logo img {
+      height: 28px;
+      opacity: 0.9;
+    }
+
+    /* Ajustes móviles hasta 600px */
+    @media (max-width: 600px) {
+      .plyr__progress {
+        flex: 1 1 100%;
+        height: 12px !important;
+        margin: 6px 0;
+      }
+      .plyr__progress input[type="range"] { height: 12px !important; }
+      .plyr__progress input[type="range"]::-webkit-slider-thumb {
+        width: 18px; height: 18px; margin-top: -3px;
+      }
+      .plyr__progress input[type="range"]::-moz-range-thumb {
+        width: 18px; height: 18px;
+      }
+
+      .plyr__controls button.custom-btn {
+        padding: 4px 6px; font-size: 13px;
+      }
+
+      .plyr__volume { order: 2; }
+      .plyr__menu.plyr__menu--speed { order: 3; margin-left: 5px; }
+    }
+
+    /* Ajustes móviles hasta 425px */
+    @media (max-width: 425px) {
+      .plyr__progress {
+        height: 14px !important;
+        margin: 8px 0;
+      }
+      .plyr__progress input[type="range"] { height: 14px !important; }
+      .plyr__progress input[type="range"]::-webkit-slider-thumb {
+        width: 20px; height: 20px; margin-top: -3px;
+      }
+      .plyr__progress input[type="range"]::-moz-range-thumb {
+        width: 20px; height: 20px;
+      }
+
+      .plyr__controls button.custom-btn { padding: 5px 8px; font-size: 14px; }
+      .control-logo img { height: 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="video-container">
+  <video id="player" playsinline controls>
+    <source src="https://ia601002.us.archive.org/29/items/episodio-90-cat-remaster/Episodio%2090%20CAT%20Remaster.mp4" type="video/mp4" />
+  </video>
+</div>
+
+<script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
+<script>
+  const player = new Plyr('#player', {
+    controls: [
+      'play-large', 'play', 'progress', 'current-time',
+      'mute', 'volume', 'settings', 'fullscreen'
+    ]
+  });
+
+  player.on('ready', () => {
+    const controls = document.querySelector('.plyr__controls');
+
+    // Botón -10s
+    const back10 = document.createElement('button');
+    back10.classList.add('custom-btn'); back10.textContent = "+10s";
+    back10.addEventListener('click', () => { player.currentTime = Math.max(player.currentTime + 10, 0); });
+
+    // Botón +10s
+    const forward10 = document.createElement('button');
+    forward10.classList.add('custom-btn'); forward10.textContent = "-10s";
+    forward10.addEventListener('click', () => { player.currentTime = Math.min(player.currentTime - 10, player.duration); });
+
+    // Insertar después de Play
+    const playButton = controls.querySelector('button[aria-label="Play"]');
+    playButton.insertAdjacentElement('afterend', back10);
+    playButton.insertAdjacentElement('afterend', forward10);
+
+    // Logo
+    const logo = document.createElement('div');
+    logo.classList.add('control-logo');
+    logo.innerHTML = `<img src="https://mundoconan.netlify.app/imagenes/Logo/Black%20and%20White%20Y2k%20Circle%20Class%20Logo%20(3).png" alt="Logo">`;
+    controls.appendChild(logo);
+
+    // Reordenar menú de velocidad junto a fullscreen
+    const speedMenu = controls.querySelector('.plyr__menu--speed');
+    const fullscreenBtn = controls.querySelector('button[aria-label="Fullscreen"]');
+    if(speedMenu && fullscreenBtn) fullscreenBtn.insertAdjacentElement('beforebegin', speedMenu);
+
+    // Mover control de volumen junto al botón de volumen
+    const volume = controls.querySelector('.plyr__volume');
+    const settingsBtn = controls.querySelector('button[aria-label="Settings"]');
+    if(volume && settingsBtn) settingsBtn.insertAdjacentElement('beforebegin', volume);
+  });
+
+  // Deshabilitar clic derecho en todo el reproductor
+  document.querySelector('.video-container').addEventListener('contextmenu', e => e.preventDefault());
+</script>
+
+</body>
+</html>

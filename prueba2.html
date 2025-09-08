@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" href="../../../imagenes/favicon_io/favicon.ico" type="image/x-icon">
+    <link rel="icon" type="image/png" sizes="32x32" href="../../../imagenes/favicon_io/favicon-32x32.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Episodio 95 Catalán Remasterizado</title>
+
+  <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+  <link rel="stylesheet" href="../../../css/style.css">
+
+</head>
+<body>
+
+<div class="video-container">
+  <video id="player" playsinline controls>
+    <source src="https://ia600506.us.archive.org/7/items/episodio-93-cat-remaster/Episodio%2095%20CAT%20Remaster.mp4" type="video/mp4" />
+  </video>
+</div>
+
+<script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
+<script>
+  const player = new Plyr('#player', {
+    controls: [
+      'play-large', 'play', 'progress', 'current-time',
+      'mute', 'volume', 'settings', 'fullscreen'
+    ]
+  });
+
+  player.on('ready', () => {
+    const controls = document.querySelector('.plyr__controls');
+
+    const back10 = document.createElement('button');
+    back10.classList.add('custom-btn'); back10.textContent = "+10s";
+    back10.addEventListener('click', () => { player.currentTime = Math.max(player.currentTime + 10, 0); });
+
+    const forward10 = document.createElement('button');
+    forward10.classList.add('custom-btn'); forward10.textContent = "-10s";
+    forward10.addEventListener('click', () => { player.currentTime = Math.min(player.currentTime - 10, player.duration); });
+
+    const playButton = controls.querySelector('button[aria-label="Play"]');
+    playButton.insertAdjacentElement('afterend', back10);
+    playButton.insertAdjacentElement('afterend', forward10);
+
+    const logo = document.createElement('div');
+    logo.classList.add('control-logo');
+    logo.innerHTML = `<img src="https://mundoconan.netlify.app/imagenes/Logo/Black%20and%20White%20Y2k%20Circle%20Class%20Logo%20(3).png" alt="Logo">`;
+    controls.appendChild(logo);
+
+    const speedMenu = controls.querySelector('.plyr__menu--speed');
+    const fullscreenBtn = controls.querySelector('button[aria-label="Fullscreen"]');
+    if(speedMenu && fullscreenBtn) fullscreenBtn.insertAdjacentElement('beforebegin', speedMenu);
+
+    const volume = controls.querySelector('.plyr__volume');
+    const settingsBtn = controls.querySelector('button[aria-label="Settings"]');
+    if(volume && settingsBtn) settingsBtn.insertAdjacentElement('beforebegin', volume);
+  });
+
+  document.querySelector('.video-container').addEventListener('contextmenu', e => e.preventDefault());
+</script>
+
+</body>
+</html>
